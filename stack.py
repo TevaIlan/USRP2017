@@ -1,14 +1,18 @@
+from __future__ import print_function
 import flipper
 from flipper import liteMap
 from astropy.io import fits
-from __future__ import print_function
 import orphics.tools.io as io
 from scipy.ndimage.interpolation import zoom
 import numpy as np
+from orphics.tools.stats import bin2D
+from orphics.tools.io import Plotter,dictFromSection,listFromConfig
+from orphics.analysis import flatMaps as fmaps
+import numpy as np
 
-hdulist=fits.open('ACTPol.fits')
+hdulist=fits.open('../ACTdata/ACTPol.fits')
 catalog=hdulist[1].data
-map=liteMap.liteMapFromFits('ACTPol_148_D56_PA1_S2_1way_I.fits')
+map=liteMap.liteMapFromFits('../ACTdata/ACTPol_148_D56_PA1_S2_1way_I.fits')
 RAs=[]
 DECs=[]
 widthStampArcminute = 20.
@@ -32,6 +36,7 @@ for i in range(0,len(catalog)):
                 cutout = zoom(smap.data.copy(),zoom=(float(Np)/smap.data.shape[0],float(Np)/smap.data.shape[1]))
                 print (cutout.shape)
 		stack = stack + cutout
+		xMap,yMap,modRMap,xx,yy = fmaps.getRealAttributes(smap)
 		N=N+1.
 stack=stack/N
 #print(stack.shape())
@@ -39,5 +44,16 @@ print(smap.data.shape)
 print(stack)
 print(N)
 io.quickPlot2d(stack,"stack.png")
+
+dt = pixScale
+arcmax = 20.
+thetaRange = np.arange(0.,arcmax,dt)
+breal = bin2D(modRMap*180.*60./np.pi,thetaRange)
+cents,recons = breal.bin(stack)
+
+pl = Plotter()
+pl.add(cents,recons)
+pl._ax.axhline(y=0.,ls="--",alpha=0.5)
+pl.done("profiles.png")
 
 
