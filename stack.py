@@ -51,7 +51,7 @@ thetaRange = np.arange(0.,arcmax,dt)
 breal = bin2D(modRMap*180.*60./np.pi,thetaRange)
 cents,recons = breal.bin(stack)
 
-pl = Plotter()
+pl = Plotter(labelX='Distance from Center (radians)',labelY='Temperature Fluctuation ($\mu K$)', ftsize=10)
 pl.add(cents,recons)
 pl._ax.axhline(y=0.,ls="--",alpha=0.5)
 pl.done("profiles.png")
