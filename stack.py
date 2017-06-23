@@ -40,7 +40,7 @@ def profiles(random): #0=False (i.e. not random), 1=True (i.e. Random)
 			ra=RArand[i]
 			dec=DECrand[i]
 		ix, iy = map.skyToPix(ra,dec)
-		if ix>=0 and ix<map.Nx and iy>=0 and iy<map.Ny:
+		if ix>=20 and ix<map.Nx-20 and iy>=20 and iy<map.Ny-20:
 			print(ra,dec)
 			smap = map.selectSubMap(ra-widthStampDegrees/2.,ra+widthStampDegrees/2.,dec-widthStampDegrees/2.,dec+widthStampDegrees/2.)
                 	cutout = zoom(smap.data.copy(),zoom=(float(Np)/smap.data.shape[0],float(Np)/smap.data.shape[1]))
@@ -60,10 +60,10 @@ def profiles(random): #0=False (i.e. not random), 1=True (i.e. Random)
 	thetaRange = np.arange(0.,arcmax,dt)
 	breal = bin2D(modRMap*180.*60./np.pi,thetaRange)
 	cents,recons = breal.bin(stack)
-	pl = Plotter(labelX='Distance from Center (radians)',labelY='Temperature Fluctuation ($\mu K$)', ftsize=10)
+	pl = Plotter(labelX='Distance from Center (arcminutes)',labelY='Temperature Fluctuation ($\mu K$)', ftsize=10)
 	pl.add(cents,recons)
 	pl._ax.axhline(y=0.,ls="--",alpha=0.5)
-	pl.done("randomprofiles6.png")
+	pl.done("randomprofiles.png")
 
 profiles(random=1)
 
