@@ -10,21 +10,29 @@ from orphics.tools.io import Plotter,dictFromSection,listFromConfig
 from orphics.analysis import flatMaps as fmaps
 import numpy as np
 
-#hdulist=fits.open('../ACTdata/ACTPol.fits')
-catalog= None #hdulist[1].data
-lmap=liteMap.liteMapFromFits('../ACTdata/ACTPol_148_D56_PA1_S2_1way_I.fits')
+map_location = "/astro/astronfs01/workarea/msyriac/act/cmb_maps/c7v5_release/s2/ACTPol_148_D56_PA1_S2_1way_I_src_free.fits"
+cat_location = "/astro/astronfs01/workarea/msyriac/act/ACTPol.fits"
+
+#map_location = '../ACTdata/ACTPol_148_D56_PA1_S2_1way_I.fits'
+#cat_location = '../ACTdata/ACTPol.fits'
+
+hdulist=fits.open(cat_location)
+catalog= hdulist[1].data
+lmap=liteMap.liteMapFromFits(map_location)
 RAs=[]
 DECs=[]
-widthStampArcminute = 20.
+widthStampArcminute = 60.
 pixScale = 0.5
-Nrands = 10000
+Nrands = 1000
 
-ra_range = [0.,360.]
-dec_range = [-10.,6.5]
+ra_range = [lmap.x1-360.,lmap.x0] 
+dec_range = [lmap.y0,lmap.y1]
 
-def profiles(lite_map,width_stamp_arcminute,pix_scale,catalog=None,n_random_points=None,rand_ra_range=None,rand_dec_range=None):
+
+def stack_on_map(lite_map,width_stamp_arcminute,pix_scale,catalog=None,n_random_points=None,rand_ra_range=None,rand_dec_range=None):
         width_stamp_degrees = width_stamp_arcminute /60.
         Np = np.int(width_stamp_arcminute/pix_scale+0.5)
+        pad = np.int(Np/2+0.5)
         print ("Expected width in pixels = ", Np)
 
         lmap = lite_map
@@ -46,20 +54,21 @@ def profiles(lite_map,width_stamp_arcminute,pix_scale,catalog=None,n_random_poin
 		if random:
                         ra = np.random.uniform(*rand_ra_range)
                         dec =np.random.uniform(*rand_dec_range)
-			#ra=RArand[i]
-			#dec=DECrand[i]
 		else:
                         ra=catalog[i][1]
 			dec=catalog[i][2]
 		ix, iy = lmap.skyToPix(ra,dec)
-		if ix>=20 and ix<lmap.Nx-20 and iy>=20 and iy<lmap.Ny-20:
+		if ix>=pad and ix<lmap.Nx-pad and iy>=pad and iy<lmap.Ny-pad:
+			print(i)
 			print(ra,dec)
 			smap = lmap.selectSubMap(ra-width_stamp_degrees/2.,ra+width_stamp_degrees/2.,dec-width_stamp_degrees/2.,dec+width_stamp_degrees/2.)
                 	cutout = zoom(smap.data.copy(),zoom=(float(Np)/smap.data.shape[0],float(Np)/smap.data.shape[1]))
-                	print (cutout.shape)
+                	#print (cutout.shape)
 			stack = stack + cutout
 			xMap,yMap,modRMap,xx,yy = fmaps.getRealAttributes(smap)
 			N=N+1.
+                else:
+                        print ("skip")
 	stack=stack/N
 	#print(stack.shape())
 	#print(smap.data.shape)
@@ -78,6 +87,7 @@ def profiles(lite_map,width_stamp_arcminute,pix_scale,catalog=None,n_random_poin
 	pl.done("randomprofiles.png")
         return stack, cents, recons
 
-stack, cents, recons = profiles(lmap,widthStampArcminute,pixScale,n_random_points=Nrands,rand_ra_range=ra_range,rand_dec_range=dec_range)
+#stack, cents, recons = stack_on_map(lmap,widthStampArcminute,pixScale,n_random_points=Nrands,rand_ra_range=ra_range,rand_dec_range=dec_range)
+stack, cents, recons = stack_on_map(lmap,widthStampArcminute,pixScale,catalog=catalog)
 
 
