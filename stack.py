@@ -29,16 +29,16 @@ print ("Expected width in pixels = ", Np)
 RArand=np.random.uniform(0.,360.,len(catalog))
 DECrand=np.random.uniform(-10.,6.5,len(catalog))
 
-def profiles(random): #0=False (i.e. not random), 1=True (i.e. Random)
+def profiles(random=False): #0=False (i.e. not random), 1=True (i.e. Random)
 	stack=0
 	N=0
 	for i in range(0,len(catalog)):
-		if random==0:
-			ra=catalog[i][1]
-			dec=catalog[i][2]
-		if random==1:
+		if random:
 			ra=RArand[i]
 			dec=DECrand[i]
+		else:
+                        ra=catalog[i][1]
+			dec=catalog[i][2]
 		ix, iy = map.skyToPix(ra,dec)
 		if ix>=20 and ix<map.Nx-20 and iy>=20 and iy<map.Ny-20:
 			print(ra,dec)
@@ -65,7 +65,7 @@ def profiles(random): #0=False (i.e. not random), 1=True (i.e. Random)
 	pl._ax.axhline(y=0.,ls="--",alpha=0.5)
 	pl.done("randomprofiles.png")
 
-profiles(random=1)
+profiles(random=True)
 
 
 # random=0
