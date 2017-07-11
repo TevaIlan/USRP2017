@@ -97,7 +97,7 @@ if ps_and_lowmass_avoidance==True:
 else:
     goodobjects=range(0,len(catalog))
                 
-def stack_on_map(lite_map,width_stamp_arcminute,pix_scale,ra_range,dec_range,ras=None,decs=None,n_random_points=None): #remember to sort out the looprange stuff
+def stack_on_map(lite_map,width_stamp_arcminute,pix_scale,ra_range,dec_range,catalog=None,n_random_points=None): 
     from skimage.transform import resize
     import orphics.tools.stats as stats
 
