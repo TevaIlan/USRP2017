@@ -125,7 +125,7 @@ def stack_on_map(lite_map,width_stamp_arcminute,pix_scale,ra_range,dec_range,cat
         if random:
             ra = np.random.uniform(*ra_range)
             dec =np.random.uniform(*dec_range)
-        else:
+        if random==False:
             ra=catalog[i][1] #1 for ACT catalog 2 for SDSS and redmapper
             dec=catalog[i][2] #2 for ACT catalog 3 for SDSS and redmapper
         ix, iy = lmap.skyToPix(ra,dec)
