@@ -136,7 +136,7 @@ def stack_on_map(lite_map,width_stamp_arcminute,pix_scale,ra_range,dec_range,cat
             cutout = resize(smap.data.copy(),output_shape=(Np,Np))
             cutouts.append(cutout-randomstack)
             stack = stack + cutout
-            xMap,yMap,modRMap,xx,yy = getRealAttributes(smap)
+            xMap,yMap,modRMap,xx,yy = fmaps.getRealAttributes(smap)
             N=N+1.
             ixs.append(ix)
             iys.append(iy)
