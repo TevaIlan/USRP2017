@@ -49,7 +49,7 @@ lmap.info()
 
 ra_range = [lmap.x1-360.,lmap.x0] 
 dec_range = [lmap.y0,lmap.y1]
-randomstack=np.load('newrandomstamp.npy')
+randomstack=np.load('fullexrandomstamp.npy')
 profiles=[]
 #lmap.data = lmap.data - lmap.data.mean()
 
@@ -106,13 +106,13 @@ def stack_on_map(lite_map,width_stamp_arcminute,pix_scale,ra_range,dec_range,cat
             smap = lmap.selectSubMap(ra-width_stamp_degrees/2.,ra+width_stamp_degrees/2.,dec-width_stamp_degrees/2.,dec+width_stamp_degrees/2.)
             #print (smap.data.shape)
             #cutout = zoom(smap.data.copy(),zoom=(float(Np)/smap.data.shape[0],float(Np)/smap.data.shape[1])
-            cutout = resize(smap.data.copy(),output_shape=(Np,Np))
+            cutout = resize(smap.data.copy(),output_shape=(Np,Np))-randomstack
             xMap,yMap,modRMap,xx,yy = fmaps.getRealAttributes(smap)
             dt = pix_scale
             arcmax = 20.
             thetaRange = np.arange(0.,arcmax,dt)
-            breal = bin2D(modRMap*180.*60./np.pi,thetaRange)
-            a=breal.bin(cutout)
+            breali = bin2D(modRMap*180.*60./np.pi,thetaRange)
+            a=breali.bin(cutout)[1]
             profiles.append(a)
             io.quickPlot2d(cutout,str(i)+"cutout.png")
             #print (cutout.shape)
@@ -120,33 +120,42 @@ def stack_on_map(lite_map,width_stamp_arcminute,pix_scale,ra_range,dec_range,cat
             N=N+1
         else:
             print ("skip")
-    stack=stack/N-randomstack
+    stack=stack/N#-randomstack
     #print(stack.shape())
     #print(smap.data.shape)
     # print(stack)
     print(N)
-    stats.getStats(profiles)
+    statistics=stats.getStats(profiles)
+    mean=statistics['mean'] 
+    error=statistics['errmean']
+    corrcoef=statistics['corr']
+    covmat=statistics['covmat']
+    print(mean/error)
+    np.save('statistics',statistics)
     #np.save('newrandomstamp',stack)
     # io.quickPlot2d(stack,out_dir+"newACTstack.png")
-    # dt = pix_scale
-    # arcmax = 20.
-    # thetaRange = np.arange(0.,arcmax,dt)
-    # breal = bin2D(modRMap*180.*60./np.pi,thetaRange)
-    # cents,recons = breal.bin(stack)
-    # pl = Plotter(labelX='Distance from Center (arcminutes)',labelY='Temperature Fluctuation ($\mu K$)', ftsize=10)
-    # pl.add(cents,recons)
-    # pl._ax.axhline(y=0.,ls="--",alpha=0.5)
-    # pl.done(out_dir+"newACTprofiles.png")
+    dt = pix_scale
+    arcmax = 20.
+    thetaRange = np.arange(0.,arcmax,dt)
+    breal = bin2D(modRMap*180.*60./np.pi,thetaRange)
+    cents,recons = breal.bin(stack)
+    pl = Plotter(labelX='Distance from Center (arcminutes)',labelY='Temperature Fluctuation ($\mu K$)', ftsize=10)
+    pl.add(cents,mean)
+    pl.addErr(cents,mean,yerr=error)
+    pl._ax.axhline(y=0.,ls="--",alpha=0.5)
+    pl.done(out_dir+"error.png")
+    print(covmat)
+    io.quickPlot2d(covmat,'covmat.png')
     return(stack, cents, recons)
 
 #stack, cents, recons = stack_on_map(lmap,widthStampArcminute,pixScale,ra_range=ra_range,dec_range=dec_range,n_random_points=Nrands)
-print(type(lmap))
-print(type(widthStampArcminute))
-print(type(pixScale))
-print(type(ra_range))
-print(type(dec_range))
-print(type(catalog))
-print(len(catalog))
+# print(type(lmap))
+# print(type(widthStampArcminute))
+# print(type(pixScale))
+# print(type(ra_range))
+# print(type(dec_range))
+# print(type(catalog))
+# print(len(catalog))
 stack, cents, recons = stack_on_map(lmap,widthStampArcminute,pixScale,ra_range=ra_range,dec_range=dec_range,catalog=catalog)
 
 
