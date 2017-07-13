@@ -12,6 +12,7 @@ import numpy as np
 import sys, os
 from skimage.transform import resize
 import orphics.tools.stats as stats
+from btip.inpaintSims import maskLiteMap
 
 ps_and_lowmass_avoidance=True #set to false to not avoid point sources and include all masses
 wholes=True #set to True to make while hole style map
