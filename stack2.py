@@ -73,12 +73,12 @@ def eliminate_objects(minmass,masscolumn,catalog):
     DECps=[]
     file1=open('../ACTdata/boss_north_s15_f150_pa2_20170402 2.csv','rb')
     psources=np.genfromtxt(file1)
-    looprange=range(0,len(catalog))
+    lprange=range(0,len(catalog))
     for i in range(0,2130):
         n=i*12
         RAps.append(psources[2+n])
         DECps.append(psources[3+n])
-    for i in looprange:
+    for i in lprange:
         ra=catalog[i][2] #1 for ACT catalog 2 for SDSS and redmapper
         dec=catalog[i][3] #2 for ACT catalog 3 for SDSS and redmapper
         proximity=True
@@ -88,8 +88,8 @@ def eliminate_objects(minmass,masscolumn,catalog):
             crit=0.25
             if distance<crit:
                 proximity=False
-            if proximity==True and mass>minmass:
-                goodobjects.append(i)
+        if proximity==True and mass>minmass:
+            goodobjects.append(i)
     return(goodobjects)
 
 if ps_and_lowmass_avoidance==True:
@@ -112,6 +112,7 @@ def stack_on_map(lite_map,width_stamp_arcminute,pix_scale,ra_range,dec_range,cat
 
     if catalog is not None:
         looprange = goodobjects 
+        print(looprange)
         assert n_random_points is None
         random = False
     else:
