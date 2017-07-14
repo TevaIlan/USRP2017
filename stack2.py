@@ -65,6 +65,7 @@ iys=[]
 #make empty list of cutouts to later use for statistical analysis
 cutouts=[]
 
+modRMaps=[]
 
 #eliminate undesireable objects (e.g. low mass or close to point source)
 def eliminate_objects(minmass,masscolumn,catalog):
@@ -142,6 +143,7 @@ def stack_on_map(lite_map,width_stamp_arcminute,pix_scale,ra_range,dec_range,cat
             N=N+1.
             ixs.append(ix)
             iys.append(iy)
+            modRMaps.append(modRMap)
         else:
             print ("skip")
     stack=stack/N-randomstack
@@ -166,12 +168,12 @@ def whiteholes(xs,ys,map):
         mask = maskLiteMap(lmap,iys,ixs,holeArc=5,holeFrac=0.6)
         io.highResPlot2d(mask.data,"mask.png")
 
-def stat_analysis(cutouts,binsize,arcmax,cents):
+def stat_analysis(cutouts,binsize,arcmax,cents,modRMaps):
     profiles=[]
-    for cutout in cutouts:
+    for i in range(0,len(cutouts)):
         thetaRange = np.arange(0.,arcmax,binsize)
-        breali = bin2D(modRMap*180.*60./np.pi,thetaRange)
-        a=breali.bin(cutout)[1]
+        breali = bin2D(modRMaps[i]*180.*60./np.pi,thetaRange)
+        a=breali.bin(cutout[i])[1]
         profiles.append(a)
     statistics=stats.getStats(profiles)
     mean=statistics['mean'] 
@@ -191,6 +193,6 @@ stack, cents, recons = stack_on_map(lmap,widthStampArcminute,pixScale,ra_range=r
 
 if wholes==True:
     whiteholes(xs=ixs,ys=iys,map=lmap)
-
+print(modRMaps)
 if stat==True:
-    stat_analysis(cutouts=cutouts,binsize=pixScale,arcmax=20.,cents=cents)
+    stat_analysis(cutouts=cutouts,binsize=pixScale,arcmax=20.,cents=cents, ModRMaps=ModRMaps)
