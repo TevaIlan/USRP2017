@@ -173,7 +173,7 @@ def stat_analysis(cutouts,binsize,arcmax,cents,modRMaps):
     for i in range(0,len(cutouts)):
         thetaRange = np.arange(0.,arcmax,binsize)
         breali = bin2D(modRMaps[i]*180.*60./np.pi,thetaRange)
-        a=breali.bin(cutout[i])[1]
+        a=breali.bin(cutouts[i])[1]
         profiles.append(a)
     statistics=stats.getStats(profiles)
     mean=statistics['mean'] 
@@ -193,6 +193,6 @@ stack, cents, recons = stack_on_map(lmap,widthStampArcminute,pixScale,ra_range=r
 
 if wholes==True:
     whiteholes(xs=ixs,ys=iys,map=lmap)
-print(modRMaps)
+
 if stat==True:
-    stat_analysis(cutouts=cutouts,binsize=pixScale,arcmax=20.,cents=cents, ModRMaps=ModRMaps)
+    stat_analysis(cutouts=cutouts,binsize=pixScale,arcmax=20.,cents=cents, modRMaps=modRMaps)
